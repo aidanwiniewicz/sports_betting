@@ -7,14 +7,14 @@ def main_routine():
     l = list(map(int,arr.split(' '))) 
     
     subevent_array = np.array(l).reshape(num_sub_events, 2)
-    vig = np.empty((num_sub_events, 1))
+    
     subevent_complement_prob = np.empty((num_sub_events, 2))
     
-    vig, subevent_complement_prob = calculate_vig(subevent_array)
+    vig, subevent_complement_prob = calculate_vig(subevent_array, num_sub_events)
     
     actual_probs = calculate_actual_probs(subevent_complement_prob, vig)
     
-    interesection_q = int(input("Input 1 if you want to take the intersection of all your subevents. Input 0 otherwise."))
+    intersection_q = int(input("Input 1 if you want to take the intersection of all your subevents. Input 0 otherwise."))
     
     if intersection_q ==1:
         true_probability = intersect_subevent_prob(actual_probs)
@@ -24,8 +24,8 @@ def main_routine():
         
     print(f"The true probability of all subevents occurring simultaneously is {np.round(true_probability*100,1)}%. ")
     
-    br_amt = float(input("What is your bankroll amount?))
-    odds_offered = int(input("What odds are you considering betting on?")
+    br_amt = float(input("What is your bankroll amount?"))
+    odds_offered = int(input("What odds are you considering betting on?"))
     boosted = int(input("Is this part of a boosted bet offering? Answer 1 for yes, 0 for no."))
     if boosted ==1:
         boosted = True
@@ -41,8 +41,10 @@ def main_routine():
     ev = compute_ev(true_probability, odds_offered)
     print(f"So, expect {ev}% return on each dollar bet on this offer. ")
                        
-def calculate_vig(subevent_array): 
-    for i in range(0, num_sub_events):
+def calculate_vig(subevent_array, num_sub_events): 
+    subevent_complement_prob = np.empty((num_sub_events, 2))
+    vig = np.empty((num_sub_events, 1))
+    for i in range(0, subevent_array.shape[0]):
         if subevent_array[i][0] > 0: # 1st column, i.e. subevent odds
             subevent_complement_prob[i][0] = 100/(subevent_array[i][0]+100)
         else: 
@@ -57,8 +59,8 @@ def calculate_vig(subevent_array):
 
     
 def calculate_actual_probs(subevent_complement_prob, vig):
-    actual_probs = np.empty((num_sub_events, 2))
-    for i in range(num_sub_events):
+    actual_probs = np.empty((subevent_complement_prob.shape[0], 2))
+    for i in range(actual_probs.shape[0]):
         actual_probs[i] = np.divide(subevent_complement_prob[i],1+vig[i])
     return actual_probs
 
